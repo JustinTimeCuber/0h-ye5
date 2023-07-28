@@ -1,5 +1,5 @@
 # 0h-ye5
-A solver for the mobile game "0h n0" with the ability to solve and generate boards up to 20x20. Not affiliated with 0h n0 or its creator(s) in any way.
+A solver for the mobile game "[0h n0](https://0hn0.com/)" with the ability to solve and generate boards up to 20x20. Not affiliated with 0h n0 or its creator(s) in any way. GUI created with [Processing](https://processing.org/).
 
 ## Installation
 Download the JAR file and run it with Java 17 or higher. Should work on Windows, Linux, and macOS.

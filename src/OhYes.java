@@ -16,6 +16,7 @@ public class OhYes extends PApplet {
     @Override
     public void setup() {
         buttonAreaHeight = height - width;
+        surface.setTitle("0h ye5");
         grid = new Grid(9);
     }
 
@@ -37,7 +38,11 @@ public class OhYes extends PApplet {
                 }
                 rect((col + 0.1f) * width / gridSize, (row + 0.1f) * width / gridSize, 0.8f * width / gridSize, 0.8f * width / gridSize);
                 if(grid.hasHint(row, col)) {
-                    fill(255);
+                    if(showAdjacent) {
+                        fill(255, 255, 0);
+                    } else {
+                        fill(255);
+                    }
                     text(showAdjacent ? grid.getAdjacent(row, col) : grid.getHint(row, col), (col + 0.5f) * width / gridSize, (row + 0.4f) * width / gridSize);
                 }
             }
@@ -120,6 +125,7 @@ public class OhYes extends PApplet {
                         }
                     }
                 }
+                grid.updateAdjacent(false);
             }
         }
     }
@@ -159,6 +165,7 @@ public class OhYes extends PApplet {
                     }
                 }
             }
+            grid.updateAdjacent(false);
         }
     }
 
@@ -171,6 +178,7 @@ public class OhYes extends PApplet {
                 int val = Integer.parseInt(String.valueOf(key));
                 grid.setBlue(mouseRow, mouseCol, val);
             }
+            grid.updateAdjacent(false);
         }
     }
 }

@@ -350,6 +350,9 @@ public class Grid {
         }
         return true;
     }
+    public int generate() {
+        return generate(0.2, 0.25, 0.99, 0.27 + 0.0067*size, 100);
+    }
     public int generate(double red, double step, double factor, double maxFill, int iterations) {
         long t = System.nanoTime();
         double initStep = step;
@@ -465,7 +468,7 @@ public class Grid {
             step = initStep;
         }
         values = minimal;
-        System.out.println("Generated with n=" + nMinimal + " in " + ((System.nanoTime() - t) / 1000) + " μs");
+        System.out.println("Generated " + size + "x" + size + " with n=" + nMinimal + " in " + ((System.nanoTime() - t) / 1000) + " μs");
         return nMinimal;
     }
 }

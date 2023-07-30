@@ -3,8 +3,10 @@ import processing.event.MouseEvent;
 
 public class OhYes extends PApplet {
     Grid grid;
+    GridGenerator generator;
     boolean showAdjacent = false;
     float buttonAreaHeight;
+    boolean waitingForGrid = false;
     public static void main(String[] args) {
         PApplet.main("OhYes");
     }
@@ -18,55 +20,74 @@ public class OhYes extends PApplet {
         buttonAreaHeight = height - width;
         surface.setTitle("0h ye5");
         grid = new Grid(9);
+        generator = new GridGenerator(grid.getSize());
     }
 
     @Override
     public void draw() {
         background(0);
         int gridSize = grid.getSize();
-        textSize(0.7f * width / gridSize);
-        textAlign(CENTER, CENTER);
-        noStroke();
-        for(int row = 0; row < gridSize; row++) {
-            for(int col = 0; col < gridSize; col++) {
-                if(grid.isRed(row, col)) {
-                    fill(200, 20, 20);
-                } else if(grid.isBlue(row, col)) {
-                    fill(20, 20, 200);
-                } else if(grid.isEmpty(row, col)) {
-                    fill(20, 20, 20);
-                }
-                rect((col + 0.1f) * width / gridSize, (row + 0.1f) * width / gridSize, 0.8f * width / gridSize, 0.8f * width / gridSize);
-                if(grid.hasHint(row, col)) {
-                    if(showAdjacent) {
-                        fill(255, 255, 0);
-                    } else {
-                        fill(255);
+        if(!waitingForGrid) {
+            textSize(0.7f * width / gridSize);
+            textAlign(CENTER, CENTER);
+            noStroke();
+            for (int row = 0; row < gridSize; row++) {
+                for (int col = 0; col < gridSize; col++) {
+                    if (grid.isRed(row, col)) {
+                        fill(200, 20, 20);
+                    } else if (grid.isBlue(row, col)) {
+                        fill(20, 20, 200);
+                    } else if (grid.isEmpty(row, col)) {
+                        fill(20, 20, 20);
                     }
-                    text(showAdjacent ? grid.getAdjacent(row, col) : grid.getHint(row, col), (col + 0.5f) * width / gridSize, (row + 0.4f) * width / gridSize);
+                    rect((col + 0.1f) * width / gridSize, (row + 0.1f) * width / gridSize, 0.8f * width / gridSize, 0.8f * width / gridSize);
+                    if (grid.hasHint(row, col)) {
+                        if (showAdjacent) {
+                            fill(255, 255, 0);
+                        } else {
+                            fill(255);
+                        }
+                        text(showAdjacent ? grid.getAdjacent(row, col) : grid.getHint(row, col), (col + 0.5f) * width / gridSize, (row + 0.4f) * width / gridSize);
+                    }
+                }
+            }
+            fill(255);
+            noFill();
+            strokeWeight(2);
+            stroke(255);
+            textSize(0.04f * width);
+            rect(0.05f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
+            text(showAdjacent ? "Show hints" : "Show adjacent", 0.18f * width, width + 0.25f * buttonAreaHeight);
+            rect(0.37f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
+            text("Solve step", 0.5f * width, width + 0.25f * buttonAreaHeight);
+            rect(0.69f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
+            text("Solve board", 0.82f * width, width + 0.25f * buttonAreaHeight);
+            rect(0.05f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
+            text("Clear", 0.18f * width, width + 0.7f * buttonAreaHeight);
+            rect(0.37f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
+            text("Change size", 0.5f * width, width + 0.7f * buttonAreaHeight);
+            rect(0.69f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
+            text("Generate", 0.82f * width, width + 0.7f * buttonAreaHeight);
+        }
+        else {
+            textAlign(CENTER, CENTER);
+            textSize(50);
+            text("Loading...", 0.5f * width, 0.5f * height);
+            if(generator.gridReady(grid.getSize())) {
+                try {
+                    grid = generator.getGrid(grid.getSize());
+                    waitingForGrid = false;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }
-        fill(255);
-        noFill();
-        strokeWeight(2);
-        stroke(255);
-        textSize(0.04f * width);
-        rect(0.05f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
-        text(showAdjacent ? "Show hints" : "Show adjacent", 0.18f * width, width + 0.25f * buttonAreaHeight);
-        rect(0.37f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
-        text("Solve step", 0.5f * width, width + 0.25f * buttonAreaHeight);
-        rect(0.69f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
-        text("Solve board", 0.82f * width, width + 0.25f * buttonAreaHeight);
-        rect(0.05f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
-        text("Clear", 0.18f * width, width + 0.7f * buttonAreaHeight);
-        rect(0.37f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
-        text("Change size", 0.5f * width, width + 0.7f * buttonAreaHeight);
-        rect(0.69f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight);
-        text("Generate", 0.82f * width, width + 0.7f * buttonAreaHeight);
     }
     @Override
     public void mousePressed() {
+        if(waitingForGrid) {
+            return;
+        }
         if(mouseIn(0.05f * width, width + 0.1f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight)) {
             showAdjacent = !showAdjacent;
             grid.updateAdjacent(false);
@@ -92,8 +113,17 @@ public class OhYes extends PApplet {
                 newSize = 20;
             }
             grid = new Grid(newSize);
+            generator.setSize(newSize);
         } else if(mouseIn(0.69f * width, width + 0.55f * buttonAreaHeight, 0.26f * width, 0.35f * buttonAreaHeight)) {
-            grid.generate(0.2, 0.25, 0.99, 0.27 + 0.0067*grid.getSize(), 100);
+            if(!generator.gridReady(grid.getSize())) {
+                waitingForGrid = true;
+                return;
+            }
+            try {
+                grid = generator.getGrid(grid.getSize());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             int mouseRow = mouseY * grid.getSize() / width;
             int mouseCol = mouseX * grid.getSize() / width;
@@ -134,6 +164,9 @@ public class OhYes extends PApplet {
     }
     @Override
     public void mouseWheel(MouseEvent event) {
+        if(waitingForGrid) {
+            return;
+        }
         int dir = event.getCount();
         int mouseRow = mouseY * grid.getSize() / width;
         int mouseCol = mouseX * grid.getSize() / width;
@@ -171,6 +204,9 @@ public class OhYes extends PApplet {
 
     @Override
     public void keyTyped() {
+        if(waitingForGrid) {
+            return;
+        }
         int mouseRow = mouseY * grid.getSize() / width;
         int mouseCol = mouseX * grid.getSize() / width;
         if (mouseRow >= 0 && mouseCol >= 0 && mouseRow < grid.getSize() && mouseRow < grid.getSize()) {
